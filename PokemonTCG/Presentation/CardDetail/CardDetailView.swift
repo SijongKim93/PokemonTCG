@@ -57,25 +57,31 @@ struct CardDetailView: View {
                     .padding(.horizontal)
                 }
 
-                AsyncImage(url: card.set.images.symbol) { phase in
+                AsyncImage(url: card.set.images.logo) { phase in
                     switch phase {
                     case .success(let image):
                         image
                             .resizable()
-                            .frame(width: 40, height: 40)
+                            .scaledToFit()
+                            .frame(maxWidth: .infinity)
+                            .padding(.horizontal)
                     case .failure:
                         Image(systemName: "photo")
                             .resizable()
-                            .frame(width: 40, height: 40)
+                            .scaledToFit()
+                            .frame(maxWidth: .infinity)
                             .foregroundColor(.gray)
+                            .padding(.horizontal)
                     case .empty:
                         ProgressView()
-                            .frame(width: 40, height: 40)
+                            .frame(height: 40)
                     @unknown default:
                         EmptyView()
                     }
                 }
-                .padding()
+                .padding(.top, 16)
+
+                
             }
             .padding(.bottom, 40)
         }

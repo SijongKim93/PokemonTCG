@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4DE45CFD2DBBE02A00CF1722 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 4DE45CFC2DBBE02A00CF1722 /* Alamofire */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		4DE45CC82DBBDC0300CF1722 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4DE45CFD2DBBE02A00CF1722 /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = PokemonTCG;
 			packageProductDependencies = (
+				4DE45CFC2DBBE02A00CF1722 /* Alamofire */,
 			);
 			productName = PokemonTCG;
 			productReference = 4DE45CB72DBBDC0200CF1722 /* PokemonTCG.app */;
@@ -195,6 +201,9 @@
 			);
 			mainGroup = 4DE45CAE2DBBDC0200CF1722;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				4DE45CFB2DBBE02A00CF1722 /* XCRemoteSwiftPackageReference "Alamofire" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4DE45CB82DBBDC0200CF1722 /* Products */;
 			projectDirPath = "";
@@ -395,7 +404,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"PokemonTCG/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"PokemonTCG/App/Resource/Preview Content\"";
 				DEVELOPMENT_TEAM = U68CWSQ94X;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -424,7 +433,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"PokemonTCG/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"PokemonTCG/App/Resource/Preview Content\"";
 				DEVELOPMENT_TEAM = U68CWSQ94X;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -558,6 +567,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		4DE45CFB2DBBE02A00CF1722 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.10.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		4DE45CFC2DBBE02A00CF1722 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4DE45CFB2DBBE02A00CF1722 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4DE45CAF2DBBDC0200CF1722 /* Project object */;
 }

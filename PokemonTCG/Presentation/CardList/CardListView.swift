@@ -22,7 +22,7 @@ struct CardListView: View {
             .navigationTitle("Pokemon Cards")
             .toolbar { favoritesToggleButton }
             .onAppear(perform: onAppear)
-            .onChange(of: viewModel.selectedSupertype) { _, _ in onFilterChange() }
+            .onChange(of: viewModel.selectedSupertype) { _, _ in /* 메소드 내부에서 처리 */ }
             .onChange(of: viewModel.selectedTypes) { _, _ in onFilterChange() }
             .navigationDestination(for: NavigationDestination.self, destination: navigationDestinationView)
         }
@@ -66,6 +66,7 @@ private extension CardListView {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button(action: {
                 viewModel.isFavoritesOnly.toggle()
+                // didSet에서 fetchFilteredCards()가 호출되므로 여기서는 추가 작업 필요 없음
             }) {
                 Image(systemName: viewModel.isFavoritesOnly ? "heart.fill" : "heart")
                     .foregroundColor(.red)
@@ -135,6 +136,7 @@ private extension CardListView {
     }
     
     func onFilterChange() {
-        viewModel.fetchCards(reset: true, query: viewModel.query.isEmpty ? nil : viewModel.query)
+        // 타입 필터 변경 시에만 호출됨 (supertype은 didSet에서 처리)
+        viewModel.fetchFilteredCards()
     }
 }

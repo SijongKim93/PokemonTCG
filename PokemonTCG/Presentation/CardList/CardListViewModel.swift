@@ -3,12 +3,12 @@ import Combine
 
 @MainActor
 final class CardListViewModel: ObservableObject {
-    // MARK: - Published Properties
-    @Published var allCards: [PokemonCard] = []   // 전체 캐싱된 카드
-    @Published var cards: [PokemonCard] = []       // 현재 보여줄 카드
-    @Published var favoriteIDs: Set<String> = []
-    @Published var selectedTypes: [String] = []
-    @Published var selectedSupertype: String? = nil {
+    // MARK: - Published Properties (View Binding용)
+    @Published var allCards: [PokemonCard] = []   // 전체 캐싱된 카드 리스트
+    @Published var cards: [PokemonCard] = []       // 현재 화면에 보여줄 카드 리스트
+    @Published var favoriteIDs: Set<String> = []   // 즐겨찾기한 카드 ID 목록
+    @Published var selectedTypes: [String] = []    // 선택된 타입 필터
+    @Published var selectedSupertype: String? = nil { // 선택된 슈퍼타입 필터
         didSet {
             if selectedSupertype == "Trainer" {
                 selectedTypes = []
@@ -16,16 +16,16 @@ final class CardListViewModel: ObservableObject {
             fetchCards(reset: true, query: query.isEmpty ? nil : query)
         }
     }
-    @Published var searchText: String = "" // 사용자가 입력하는 텍스트
-    @Published var query: String = ""       // 실제 검색에 사용하는 텍스트
-    @Published var hasLoaded: Bool = false
-    @Published var isFavoritesOnly: Bool = false {
+    @Published var searchText: String = ""         // 검색바 입력 텍스트
+    @Published var query: String = ""              // 실제 검색 API에 보내는 쿼리
+    @Published var hasLoaded: Bool = false         // 초기 데이터 로딩 여부
+    @Published var isFavoritesOnly: Bool = false { // 즐겨찾기 보기 토글
         didSet {
             updateDisplayedCards()
         }
     }
-    @Published var isLoading: Bool = false
-    @Published var isFetchingNextPage: Bool = false
+    @Published var isLoading: Bool = false         // 현재 로딩 중 여부
+    @Published var isFetchingNextPage: Bool = false // 페이징 추가 로딩 여부
 
     // MARK: - Private Properties
     private var currentPage = 1
@@ -41,7 +41,7 @@ final class CardListViewModel: ObservableObject {
         self.favoriteIDs = useCase.favorites()
     }
 
-    // MARK: - Computed
+    // MARK: - Computed Properties
     var filteredCards: [PokemonCard] {
         if query.isEmpty {
             return cards
@@ -50,7 +50,8 @@ final class CardListViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Fetch Functions
+    // MARK: - API Fetch
+    /// 전체 카드 목록 가져오기 (필터/검색 적용)
     func fetchCards(reset: Bool = false, query: String?) {
         if reset {
             allCards = []
@@ -83,6 +84,7 @@ final class CardListViewModel: ObservableObject {
         }
     }
 
+    /// 즐겨찾기한 카드만 가져오기
     private func fetchFavoriteCards() {
         guard !favoriteIDs.isEmpty else {
             self.cards = []
@@ -113,6 +115,7 @@ final class CardListViewModel: ObservableObject {
     }
 
     // MARK: - Favorite
+    /// 즐겨찾기 토글
     func toggleFavorite(cardID: String) {
         useCase.toggleFavorite(cardID: cardID)
         favoriteIDs = useCase.favorites()
@@ -122,11 +125,13 @@ final class CardListViewModel: ObservableObject {
         }
     }
 
+    /// 해당 카드가 즐겨찾기인지 확인
     func isFavorite(cardID: String) -> Bool {
         favoriteIDs.contains(cardID)
     }
 
-    // MARK: - Paging
+    // MARK: - Paging (Infinite Scroll)
+    /// 현재 아이템이 끝에 가까워질 경우 다음 페이지 호출
     func fetchNextPageIfNeeded(currentItem: PokemonCard) {
         guard !isLoading, !isFetchingNextPage, !isLastPage else { return }
         guard !isFavoritesOnly else { return }
@@ -137,6 +142,7 @@ final class CardListViewModel: ObservableObject {
         }
     }
 
+    /// 다음 페이지 가져오기
     private func fetchNextPage() {
         isFetchingNextPage = true
         currentPage += 1
@@ -167,11 +173,14 @@ final class CardListViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Helper
+    // MARK: - Navigation
+    /// 카드 디테일 화면으로 이동
     func pushToDetail(card: PokemonCard) {
         router.push(.cardDetail(card))
     }
 
+    // MARK: - Search & Filter
+    /// 모든 필터 초기화
     func resetFilters() {
         query = ""
         searchText = ""
@@ -181,11 +190,14 @@ final class CardListViewModel: ObservableObject {
         fetchCards(reset: true, query: nil)
     }
 
+    /// 검색어 적용 (검색 버튼 클릭 시)
     func applySearch() {
         query = searchText
         fetchCards(reset: true, query: query.isEmpty ? nil : query)
     }
 
+    // MARK: - Helper
+    /// 즐겨찾기 토글 시 화면 업데이트
     private func updateDisplayedCards() {
         if isFavoritesOnly {
             fetchFavoriteCards()

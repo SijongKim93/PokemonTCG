@@ -36,7 +36,7 @@ extension CardAPI {
 
             if let query = query, !query.isEmpty {
                 if query.contains("id:") {
-                    lucene.append(query)
+                    lucene.append("(\(query))") // 전체를 괄호로 묶어야 제대로 동작
                 } else {
                     lucene.append("name:\"*\(query)*\"")
                 }

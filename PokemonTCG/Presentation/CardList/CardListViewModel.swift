@@ -3,7 +3,9 @@ import Combine
 
 @MainActor
 final class CardListViewModel: ObservableObject {
-    @Published var cards: [PokemonCard] = []
+    // MARK: - Published Properties
+    @Published var allCards: [PokemonCard] = []   // 전체 캐싱된 카드
+    @Published var cards: [PokemonCard] = []       // 현재 보여줄 카드
     @Published var favoriteIDs: Set<String> = []
     @Published var selectedTypes: [String] = []
     @Published var selectedSupertype: String? = nil {
@@ -11,42 +13,47 @@ final class CardListViewModel: ObservableObject {
             if selectedSupertype == "Trainer" {
                 selectedTypes = []
             }
+            fetchCards(reset: true, query: query.isEmpty ? nil : query)
         }
     }
+    @Published var searchText: String = ""
     @Published var query: String = ""
     @Published var hasLoaded: Bool = false
-    @Published var isFavoritesOnly: Bool = false
+    @Published var isFavoritesOnly: Bool = false {
+        didSet {
+            updateDisplayedCards()
+        }
+    }
     @Published var isLoading: Bool = false
     @Published var isFetchingNextPage: Bool = false
 
+    // MARK: - Private Properties
     private var currentPage = 1
     private var isLastPage = false
     private let useCase: PokemonCardUseCaseProtocol
 
     var router: NavigationRouter
 
+    // MARK: - Init
     init(useCase: PokemonCardUseCaseProtocol, router: NavigationRouter) {
         self.useCase = useCase
         self.router = router
         self.favoriteIDs = useCase.favorites()
     }
-    
+
+    // MARK: - Computed
     var filteredCards: [PokemonCard] {
-        var filtered = cards
-        
-        if isFavoritesOnly {
-            filtered = filtered.filter { favoriteIDs.contains($0.id) }
+        if query.isEmpty {
+            return cards
+        } else {
+            return cards.filter { $0.name.localizedCaseInsensitiveContains(query) }
         }
-        
-        if !query.isEmpty {
-            filtered = filtered.filter { $0.name.localizedCaseInsensitiveContains(query) }
-        }
-        
-        return filtered
     }
 
+    // MARK: - Fetch Functions
     func fetchCards(reset: Bool = false, query: String?) {
         if reset {
+            allCards = []
             cards = []
             currentPage = 1
             isLastPage = false
@@ -64,7 +71,11 @@ final class CardListViewModel: ObservableObject {
                     supertype: selectedSupertype
                 )
                 await MainActor.run {
-                    cards.append(contentsOf: fetched)
+                    let newUniqueCards = fetched.filter { fetchedCard in
+                        !allCards.contains(where: { $0.id == fetchedCard.id })
+                    }
+                    allCards.append(contentsOf: newUniqueCards)
+                    updateDisplayedCards()
                     if fetched.count < 20 {
                         isLastPage = true
                     }
@@ -75,28 +86,23 @@ final class CardListViewModel: ObservableObject {
         }
     }
 
-    func resetFilters() {
-        query = ""
-        selectedTypes = []
-        selectedSupertype = nil
-        isFavoritesOnly = false
-        fetchCards(reset: true, query: nil)
-    }
-
+    // MARK: - Favorite
     func toggleFavorite(cardID: String) {
         useCase.toggleFavorite(cardID: cardID)
         favoriteIDs = useCase.favorites()
+        updateDisplayedCards()
     }
 
     func isFavorite(cardID: String) -> Bool {
         favoriteIDs.contains(cardID)
     }
 
+    // MARK: - Paging
     func fetchNextPageIfNeeded(currentItem: PokemonCard) {
         guard !isLoading, !isFetchingNextPage, !isLastPage else { return }
 
-        let thresholdIndex = cards.index(cards.endIndex, offsetBy: -5)
-        if cards.firstIndex(where: { $0.id == currentItem.id }) == thresholdIndex {
+        let thresholdIndex = allCards.index(allCards.endIndex, offsetBy: -5)
+        if allCards.firstIndex(where: { $0.id == currentItem.id }) == thresholdIndex {
             fetchNextPage()
         }
     }
@@ -113,9 +119,13 @@ final class CardListViewModel: ObservableObject {
                     types: selectedTypes.isEmpty ? nil : selectedTypes,
                     supertype: selectedSupertype
                 )
-
+                
                 await MainActor.run {
-                    cards.append(contentsOf: fetched)
+                    let newUniqueCards = fetched.filter { fetchedCard in
+                        !allCards.contains(where: { $0.id == fetchedCard.id })
+                    }
+                    allCards.append(contentsOf: newUniqueCards)
+                    updateDisplayedCards()
                     isFetchingNextPage = false
                     if fetched.count < 20 {
                         isLastPage = true
@@ -130,7 +140,30 @@ final class CardListViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Helper
     func pushToDetail(card: PokemonCard) {
-        router.push(card)
+        router.push(.cardDetail(card))
+    }
+
+    func resetFilters() {
+        query = ""
+        searchText = ""
+        selectedTypes = []
+        selectedSupertype = nil
+        isFavoritesOnly = false
+        fetchCards(reset: true, query: nil)
+    }
+
+    func applySearch() {
+        query = searchText
+        fetchCards(reset: true, query: query.isEmpty ? nil : query)
+    }
+
+    private func updateDisplayedCards() {
+        if isFavoritesOnly {
+            cards = allCards.filter { favoriteIDs.contains($0.id) }
+        } else {
+            cards = allCards
+        }
     }
 }

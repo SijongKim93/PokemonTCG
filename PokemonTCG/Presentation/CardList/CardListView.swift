@@ -16,9 +16,9 @@ struct CardListView: View {
         NavigationStack(path: $viewModel.router.path) {
             VStack {
                 SearchBar(
-                    text: $viewModel.query,
+                    text: $viewModel.searchText,
                     onSearch: {
-                        viewModel.fetchCards(reset: true, query: viewModel.query.isEmpty ? nil : viewModel.query)
+                        viewModel.applySearch()
                     },
                     onClear: {
                         viewModel.resetFilters()
@@ -35,7 +35,7 @@ struct CardListView: View {
                     contentView
                 }
             }
-            .navigationTitle("Pokémon Cards")
+            .navigationTitle("Pokemon Cards")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
@@ -46,16 +46,10 @@ struct CardListView: View {
                     }
                 }
             }
-            .navigationDestination(for: PokemonCard.self) { card in
-                CardDetailView(
-                    card: card,
-                    viewModel: viewModel
-                )
-            }
             .onAppear {
                 if !viewModel.hasLoaded {
-                    viewModel.fetchCards(query: viewModel.query.isEmpty ? nil : viewModel.query)
                     viewModel.hasLoaded = true
+                    viewModel.fetchCards(query: viewModel.query.isEmpty ? nil : viewModel.query)
                 }
             }
             .onChange(of: viewModel.selectedSupertype) { _, _ in
@@ -63,6 +57,15 @@ struct CardListView: View {
             }
             .onChange(of: viewModel.selectedTypes) { _, _ in
                 viewModel.fetchCards(reset: true, query: viewModel.query.isEmpty ? nil : viewModel.query)
+            }
+            .navigationDestination(for: NavigationDestination.self) { destination in
+                switch destination {
+                case .cardDetail(let card):
+                    CardDetailView(
+                        card: card,
+                        viewModel: viewModel
+                    )
+                }
             }
         }
     }
@@ -94,7 +97,7 @@ struct CardListView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             LazyVGrid(columns: columns, spacing: 16) {
-                ForEach(viewModel.filteredCards) { card in
+                ForEach(viewModel.filteredCards, id: \.id) { card in
                     Button {
                         viewModel.pushToDetail(card: card)
                     } label: {

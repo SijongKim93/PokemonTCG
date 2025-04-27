@@ -27,39 +27,43 @@ extension CardAPI {
     var queryItems: [URLQueryItem]? {
         switch self {
         case let .fetchCards(query, types, supertype, page):
-            // 기본 파라미터
             var items: [URLQueryItem] = [
                 .init(name: "page", value: "\(page)"),
                 .init(name: "pageSize", value: "20"),
                 .init(name: "select", value: "id,name,supertype,types,images,set")
             ]
-            
+
             var lucene: [String] = []
-            
+
             if let query = query, !query.isEmpty {
-                lucene.append("name:\"*\(query)*\"")
+                if query.contains("id:") {
+                    lucene.append(query)
+                } else {
+                    lucene.append("name:\"*\(query)*\"")
+                }
             }
 
-            if let types = types {
+            if let types = types, !types.isEmpty {
                 lucene.append(contentsOf: types.map { "types:\($0)" })
             }
 
             if let supertype = supertype {
                 lucene.append("supertype:\(supertype)")
             }
-            
+
             if !lucene.isEmpty {
                 items.append(
                     .init(name: "q", value: lucene.joined(separator: " "))
                 )
             }
-            
+
             return items
-            
+
         case .fetchTypes, .fetchSupertypes:
             return nil
         }
     }
+
     
     var urlRequest: URLRequest {
         var components = URLComponents(

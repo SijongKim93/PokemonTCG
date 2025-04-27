@@ -1,6 +1,5 @@
 import SwiftUI
 
-
 struct CardCell: View {
     let card: PokemonCard
     @Binding var isFavorite: Bool

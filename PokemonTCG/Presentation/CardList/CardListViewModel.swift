@@ -16,8 +16,8 @@ final class CardListViewModel: ObservableObject {
             fetchCards(reset: true, query: query.isEmpty ? nil : query)
         }
     }
-    @Published var searchText: String = ""
-    @Published var query: String = ""
+    @Published var searchText: String = "" // 사용자가 입력하는 텍스트
+    @Published var query: String = ""       // 실제 검색에 사용하는 텍스트
     @Published var hasLoaded: Bool = false
     @Published var isFavoritesOnly: Bool = false {
         didSet {
@@ -71,11 +71,8 @@ final class CardListViewModel: ObservableObject {
                     supertype: selectedSupertype
                 )
                 await MainActor.run {
-                    let newUniqueCards = fetched.filter { fetchedCard in
-                        !allCards.contains(where: { $0.id == fetchedCard.id })
-                    }
-                    allCards.append(contentsOf: newUniqueCards)
-                    updateDisplayedCards()
+                    allCards.append(contentsOf: fetched)
+                    cards.append(contentsOf: fetched)
                     if fetched.count < 20 {
                         isLastPage = true
                     }
@@ -86,11 +83,43 @@ final class CardListViewModel: ObservableObject {
         }
     }
 
+    private func fetchFavoriteCards() {
+        guard !favoriteIDs.isEmpty else {
+            self.cards = []
+            return
+        }
+
+        let favoriteQuery = favoriteIDs.map { "id:\($0)" }.joined(separator: " OR ")
+
+        Task {
+            isLoading = true
+            defer { isLoading = false }
+
+            do {
+                let fetched = try await useCase.fetchCards(
+                    page: 1,
+                    query: favoriteQuery,
+                    types: nil,
+                    supertype: nil
+                )
+                await MainActor.run {
+                    cards = fetched
+                    isLastPage = true
+                }
+            } catch {
+                print("[fetchFavoriteCards] error: \(error)")
+            }
+        }
+    }
+
     // MARK: - Favorite
     func toggleFavorite(cardID: String) {
         useCase.toggleFavorite(cardID: cardID)
         favoriteIDs = useCase.favorites()
-        updateDisplayedCards()
+
+        if isFavoritesOnly {
+            fetchFavoriteCards()
+        }
     }
 
     func isFavorite(cardID: String) -> Bool {
@@ -100,9 +129,10 @@ final class CardListViewModel: ObservableObject {
     // MARK: - Paging
     func fetchNextPageIfNeeded(currentItem: PokemonCard) {
         guard !isLoading, !isFetchingNextPage, !isLastPage else { return }
+        guard !isFavoritesOnly else { return }
 
-        let thresholdIndex = allCards.index(allCards.endIndex, offsetBy: -5)
-        if allCards.firstIndex(where: { $0.id == currentItem.id }) == thresholdIndex {
+        let thresholdIndex = cards.index(cards.endIndex, offsetBy: -5)
+        if cards.firstIndex(where: { $0.id == currentItem.id }) == thresholdIndex {
             fetchNextPage()
         }
     }
@@ -119,13 +149,10 @@ final class CardListViewModel: ObservableObject {
                     types: selectedTypes.isEmpty ? nil : selectedTypes,
                     supertype: selectedSupertype
                 )
-                
+
                 await MainActor.run {
-                    let newUniqueCards = fetched.filter { fetchedCard in
-                        !allCards.contains(where: { $0.id == fetchedCard.id })
-                    }
-                    allCards.append(contentsOf: newUniqueCards)
-                    updateDisplayedCards()
+                    allCards.append(contentsOf: fetched)
+                    cards.append(contentsOf: fetched)
                     isFetchingNextPage = false
                     if fetched.count < 20 {
                         isLastPage = true
@@ -161,7 +188,7 @@ final class CardListViewModel: ObservableObject {
 
     private func updateDisplayedCards() {
         if isFavoritesOnly {
-            cards = allCards.filter { favoriteIDs.contains($0.id) }
+            fetchFavoriteCards()
         } else {
             cards = allCards
         }

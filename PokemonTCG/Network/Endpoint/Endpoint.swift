@@ -39,6 +39,7 @@ extension CardAPI {
                 if query.contains("id:") {
                     lucene.append(query)
                 } else {
+                    
                     lucene.append("name:\"*\(query)*\"")
                 }
             }

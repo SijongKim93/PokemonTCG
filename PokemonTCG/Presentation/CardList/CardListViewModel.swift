@@ -90,7 +90,7 @@ final class CardListViewModel: ObservableObject {
                         !allCards.contains(where: { $0.id == fetchedCard.id })
                     }
                     allCards.append(contentsOf: newUniqueCards)
-                    cards = allCards  // 전체 필터링된 결과 표시
+                    cards = allCards
                     
                     if fetched.count < 20 {
                         isLastPage = true
@@ -183,7 +183,7 @@ final class CardListViewModel: ObservableObject {
                         !allCards.contains(where: { $0.id == fetchedCard.id })
                     }
                     allCards.append(contentsOf: newUniqueCards)
-                    cards = allCards  // 전체 결과 업데이트
+                    cards = allCards
                     
                     isFetchingNextPage = false
                     if fetched.count < 20 {

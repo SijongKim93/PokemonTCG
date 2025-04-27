@@ -29,14 +29,14 @@ extension CardAPI {
             var items: [URLQueryItem] = [
                 .init(name: "page", value: "\(page)"),
                 .init(name: "pageSize", value: "20"),
-                .init(name: "select", value: "id,name,supertype,types,images,set") // 필요한 필드만 요청
+                .init(name: "select", value: "id,name,supertype,types,images,set")
             ]
 
             var lucene: [String] = []
 
             if let query = query, !query.isEmpty {
                 if query.contains("id:") {
-                    lucene.append("(\(query))") // 전체를 괄호로 묶어야 제대로 동작
+                    lucene.append("(\(query))")
                 } else {
                     lucene.append("name:\"*\(query)*\"")
                 }

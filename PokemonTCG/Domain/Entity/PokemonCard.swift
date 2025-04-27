@@ -1,6 +1,6 @@
 import Foundation
 
-struct PokemonCard: Decodable, Identifiable {
+struct PokemonCard: Decodable, Identifiable, Hashable {
     let id: String
     let name: String
     let supertype: String
@@ -9,16 +9,16 @@ struct PokemonCard: Decodable, Identifiable {
     let set: SetInfo
 }
 
-struct ImageURLs: Decodable {
+struct ImageURLs: Decodable, Hashable {
     let small: URL
     let large: URL
 }
 
-struct SetInfo: Decodable {
+struct SetInfo: Decodable, Hashable {
     let images: SetImages
 }
 
-struct SetImages: Decodable {
+struct SetImages: Decodable, Hashable {
     let symbol: URL
     let logo: URL
 }

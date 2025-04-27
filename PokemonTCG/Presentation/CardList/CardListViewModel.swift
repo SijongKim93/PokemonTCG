@@ -1,9 +1,10 @@
-import Foundation
+import SwiftUI
 import Combine
 
 @MainActor
 final class CardListViewModel: ObservableObject {
     @Published var cards: [PokemonCard] = []
+    @Published var favoriteIDs: Set<String> = []
     @Published var selectedTypes: [String] = []
     @Published var selectedSupertype: String? = nil {
         didSet {
@@ -13,22 +14,35 @@ final class CardListViewModel: ObservableObject {
         }
     }
     @Published var query: String = ""
-    @Published var isFavoritesOnly: Bool = false {
-        didSet {
-            objectWillChange.send()
-        }
-    }
+    @Published var hasLoaded: Bool = false
+    @Published var isFavoritesOnly: Bool = false
     @Published var isLoading: Bool = false
     @Published var isFetchingNextPage: Bool = false
-    @Published var favoriteIDs: Set<String> = []
 
     private var currentPage = 1
     private var isLastPage = false
     private let useCase: PokemonCardUseCaseProtocol
 
-    init(useCase: PokemonCardUseCaseProtocol) {
+    var router: NavigationRouter
+
+    init(useCase: PokemonCardUseCaseProtocol, router: NavigationRouter) {
         self.useCase = useCase
-        favoriteIDs = useCase.favorites()
+        self.router = router
+        self.favoriteIDs = useCase.favorites()
+    }
+    
+    var filteredCards: [PokemonCard] {
+        var filtered = cards
+        
+        if isFavoritesOnly {
+            filtered = filtered.filter { favoriteIDs.contains($0.id) }
+        }
+        
+        if !query.isEmpty {
+            filtered = filtered.filter { $0.name.localizedCaseInsensitiveContains(query) }
+        }
+        
+        return filtered
     }
 
     func fetchCards(reset: Bool = false, query: String?) {
@@ -114,5 +128,9 @@ final class CardListViewModel: ObservableObject {
                 }
             }
         }
+    }
+
+    func pushToDetail(card: PokemonCard) {
+        router.push(card)
     }
 }

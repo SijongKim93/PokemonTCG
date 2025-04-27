@@ -2,7 +2,7 @@ import SwiftUI
 
 struct CardDetailView: View {
     let card: PokemonCard
-    @Binding var isFavorite: Bool
+    @ObservedObject var viewModel: CardListViewModel
 
     var body: some View {
         ScrollView {
@@ -28,25 +28,25 @@ struct CardDetailView: View {
                     }
                 }
                 .padding()
-                
+
                 HStack {
                     Text(card.name)
                         .font(.title2)
                         .fontWeight(.bold)
                     Spacer()
                     Button(action: {
-                        isFavorite.toggle()
+                        viewModel.toggleFavorite(cardID: card.id)
                     }) {
-                        Image(systemName: isFavorite ? "heart.fill" : "heart")
+                        Image(systemName: viewModel.isFavorite(cardID: card.id) ? "heart.fill" : "heart")
                             .foregroundColor(.red)
                             .font(.title2)
                     }
                 }
                 .padding(.horizontal)
-                
+
                 if let types = card.types {
                     HStack {
-                        ForEach(types, id: \.self) { type in
+                        ForEach(types, id: \ .self) { type in
                             Text(type)
                                 .font(.caption)
                                 .padding(6)

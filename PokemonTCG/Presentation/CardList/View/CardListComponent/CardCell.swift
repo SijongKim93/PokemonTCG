@@ -1,6 +1,5 @@
 import SwiftUI
 
-import SwiftUI
 
 struct CardCell: View {
     let card: PokemonCard

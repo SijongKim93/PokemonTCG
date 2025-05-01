@@ -1,6 +1,6 @@
 # PokemonTCG -과제 기술문서
 
-포켓몬 카드 목록을 불러오고, 검색, 필터링, 즐겨찾기 등 관리 기능을 지원하는 앱입니다.
+포켓몬 카드 목록을 불러오고, 검색, 필터링, 즐겨찾기 등 관리 기능을 지원하는 앱
 
 <img src="https://github.com/user-attachments/assets/bffc607e-ba21-469e-a50e-a1f4a18d2763" width="200" height="430"> 
 <img src="https://github.com/user-attachments/assets/34882827-f7f0-44db-b183-25e589a74592" width="200" height="430">

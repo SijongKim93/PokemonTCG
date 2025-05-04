@@ -1,4 +1,4 @@
-# PokemonTCG -과제 기술문서
+# PokemonTCG -과제 기술문서 정리
 
 <img src="https://github.com/user-attachments/assets/bffc607e-ba21-469e-a50e-a1f4a18d2763" width="200" height="430"> 
 <img src="https://github.com/user-attachments/assets/34882827-f7f0-44db-b183-25e589a74592" width="200" height="430">

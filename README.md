@@ -1,4 +1,4 @@
-# PokemonTCG -과제 기술문서 정리
+# PokemonTCG
 
 <img src="https://github.com/user-attachments/assets/bffc607e-ba21-469e-a50e-a1f4a18d2763" width="200" height="430"> 
 <img src="https://github.com/user-attachments/assets/34882827-f7f0-44db-b183-25e589a74592" width="200" height="430">
@@ -305,7 +305,3 @@ func toggleFavorite(cardID: String) {
 
 - 최소한의 네트워크 요청을 위해 항상 상태를 기준으로 처리 흐름을 달리해야한다는 점을 느낄 수 있었고 이를 바탕으로 상태 관리가 매우 중요함
 - 캐시를 적극 활용하여 사용자 경험을 높힐 뿐 아니라 네트워크 불필요 요청을 줄일 수 있음
-
-### 해당 과제 문제점
-- 버전 변경 후 사용 가능 스택 미확인으로 인한 오류 발생
-- 추가적으로 수정되어야 할 사항 및 개선 사항 고려
